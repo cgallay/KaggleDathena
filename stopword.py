@@ -1,3 +1,6 @@
+import nltk
+from nltk.tokenize import word_tokenize
+
 def removeStop(text):
     stop_words = ['i', 'me', 'my', 'myself', 'we', 'our',
                'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your',

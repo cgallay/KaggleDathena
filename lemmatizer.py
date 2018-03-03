@@ -1,3 +1,6 @@
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+
 def get_wordnet_pos(treebank_tag):
     if treebank_tag.startswith('J'):
         return wordnet.ADJ
@@ -24,3 +27,7 @@ def lemmize(text):
         except Exception:
             finalStemmed.append((w[0],w[1][0]))     
     return finalStemmed
+
+def textPOS(textToPOS):
+    #text = [c.lower() for c in text]
+    return nltk.pos_tag(textToPOS)

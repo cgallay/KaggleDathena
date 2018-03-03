@@ -3,16 +3,12 @@ import docx
 
 def apply(file_path):
     file_type = get_file_type(file_path)
-    try:
-        if file_type == 'EXCEL':
+    if file_type == 'EXCEL':
             return exctract_excel(file_path)
-        if file_type == 'PDF':
+    if file_type == 'PDF':
             return exctract_pdf(file_path)
-        if file_type == 'WORD':
+    if file_type == 'WORD':
             return exctract_word(file_path)
-    except:
-        print('Error while reading file ' + file_path)
-        return ''
 
 def get_file_type(file_path):
     if file_path[-3:] == 'pdf':
