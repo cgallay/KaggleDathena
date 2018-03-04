@@ -1,4 +1,5 @@
 from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk import pos_tag, ne_chunk
 def apply(text):
     """ Return: the imortant sentence of the text """
     sents = sent_tokenize(text)
@@ -7,5 +8,7 @@ def apply(text):
         
 
 def interesting_sent(sent):
+    NER = ne_chunk(pos_tag(word_tokenize(sent)))
+    
     return 'keppel' in sent.lower() or 'prudential' in sent.lower()
 
