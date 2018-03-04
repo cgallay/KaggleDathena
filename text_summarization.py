@@ -6,7 +6,7 @@ def apply(text, interest):
     """ Return: the imortant sentence of the text """
     #sents = sent_tokenize(text)
     #inter_sent = [sent for sent in sents if interesting_sent(sent)]
-    return get_surroundning(text, interest, 10)
+    return get_surroundning(text, interest, 20)
 
 def interesting_sent(sent):
     #NER = ne_chunk(pos_tag(word_tokenize(sent)))

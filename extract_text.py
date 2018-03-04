@@ -1,7 +1,10 @@
 import PyPDF2
 import docx
 import xlrd
+import re
+import math
 import csv
+from pdfrw import PdfReader
 
 def apply(file_path):
     file_type = get_file_type(file_path)
@@ -72,3 +75,34 @@ def exctract_word(path):
             fullText.append(para.text)
         result = '\n'.join(fullText)
     return result
+
+def count_occurence(text,company):
+    return len(re.findall(company.lower(),text.lower()))
+
+def frequency_occurence(text,company):
+    countO = count_occurence(text,company)
+    if(len(text)>0 and countO!=0 ):
+        return countO/math.log(len(text.split()))
+    else:
+        return 0
+
+
+def extract_title(path):
+    if path[-3:] == 'pdf':
+        try:
+            pdf = PdfReader(path).Info.Title
+            return pdf
+        except:
+            return " "
+    if path[-3:] == 'xls' or path[-4:] == 'xlsx':
+        try:
+            return " "
+        except:
+            return " " 
+    if path[-3:] == 'doc' or path[-4:] == 'docx':
+        try:
+            doc = docx.Document(path)
+            return doc.core_properties.title
+        except:
+            return " "
+    raise Exception('Unexpected file type')
