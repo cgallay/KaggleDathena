@@ -62,15 +62,9 @@ def exctract_pdf(path):
 
 def exctract_word(path):
     if(path.endswith("doc")):
-<<<<<<< HEAD
-       txt = path[:-3]+'txt'
-       f = open(txt)
-       result = f.read()
-=======
         txt = path[:-3]+'txt'
         f = open(txt,encoding="utf8")
         result = f.read()
->>>>>>> f00f855e433ca8280832a6f96cf433f9a8807039
     else :
         doc = docx.Document(path)
         fullText = []
