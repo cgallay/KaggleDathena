@@ -6,10 +6,11 @@ def apply(sentences,company):
     for s in sentences:
         doc = nlp(s)
         for ent in doc.ents:
-            print(ent.text , " ", ent.label_)
+            #print(ent.text , " ", ent.label_)
             if(company in ent.text.lower()):
-                print(ent.text.lower())
+                #print(ent.text.lower())
                 if(ent.label_ != "PERSON"):
-                    print(s)
+                    #print(s)
                     finalPhrases.append(s)
+                    break
     return finalPhrases

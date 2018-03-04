@@ -63,4 +63,5 @@ def apply(list_sentence):
         #print(new_data)
         l_pred.append(new_data)
     l_pred = sequence.pad_sequences(l_pred, maxlen=max_review_length)
-    return model.predict(l_pred)
+    #print(model.predict_classes(l_pred))
+    return model.predict_proba(l_pred)
