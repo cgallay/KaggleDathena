@@ -57,7 +57,7 @@ def exctract_pdf(path):
     return text 
 
 def exctract_word(path):
-    if(path.endswith("doc"):
+    if(path.endswith("doc")):
        txt = path[:-3]+'txt'
        f = open(txt)
        result = f.read()
@@ -65,6 +65,6 @@ def exctract_word(path):
         doc = docx.Document(path)
         fullText = []
         for para in doc.paragraphs:
-        fullText.append(para.text)
+            fullText.append(para.text)
         result = '\n'.join(fullText)
     return result

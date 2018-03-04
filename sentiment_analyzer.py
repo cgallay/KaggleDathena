@@ -38,7 +38,7 @@ def train_model(model_path='my_model.h5'):
     tensorBoardCallback = TensorBoard(log_dir='./logs', write_graph=True)
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    model.fit(X_train, y_train, epochs=3, callbacks=[tensorBoardCallback], batch_size=64)
+    model.fit(X_train, y_train, validation_split=0.2, epochs=3, callbacks=[tensorBoardCallback], batch_size=64)
 
     # Evaluation on the test set
     scores = model.evaluate(X_test, y_test, verbose=0)
@@ -48,7 +48,7 @@ def train_model(model_path='my_model.h5'):
 
 def apply(list_sentence):
     assert type(list_sentence) == list, 'The parameter must be a list'
-    assert type(list_sentence[0]) == str, 'arg must be a list of Sting'
+    #assert type(list_sentence[0]) == str, 'arg must be a list of Sting'
     max_review_length = 1600
     l_pred = []
 
@@ -59,8 +59,8 @@ def apply(list_sentence):
     for sent in list_sentence:
         words = sent.lower().split()
         new_data = np.array([word_index[word] if word in word_index else 0 for word in words])
-        new_data = [i if i < 100000 else 0 for i in new_data]
-        print(new_data)
+        new_data = [i if i < 10000 else 0 for i in new_data]
+        #print(new_data)
         l_pred.append(new_data)
     l_pred = sequence.pad_sequences(l_pred, maxlen=max_review_length)
     return model.predict(l_pred)
