@@ -1,6 +1,7 @@
 import PyPDF2
 import docx
 import xlrd
+import csv
 
 def apply(file_path):
     file_type = get_file_type(file_path)
@@ -31,15 +32,18 @@ def get_file_type(file_path):
 
 
 def exctract_excel(path):
-    wb = xlrd.open_workbook(path)
     strRe = ""
-    for j in range(wb.nsheets):
-        sh1 = wb.sheet_by_index(j)
-        for rownum in range(sh1.nrows): # sh1.nrows -> number of rows (ncols -> num columns) 
-            row = sh1.row_values(rownum)
-            for i in row :
-                strRe += str(i) + " "
-            strRe+="\n"
+    try:
+        wb = xlrd.open_workbook(path)
+        for j in range(wb.nsheets):
+            sh1 = wb.sheet_by_index(j)
+            for rownum in range(sh1.nrows): # sh1.nrows -> number of rows (ncols -> num columns) 
+                row = sh1.row_values(rownum)
+                for i in row :
+                    strRe += str(i) + " "
+                strRe+="\n"
+    except:
+        print("Could not open Excel")
     return strRe
     
 def exctract_pdf(path):
@@ -58,9 +62,15 @@ def exctract_pdf(path):
 
 def exctract_word(path):
     if(path.endswith("doc")):
+<<<<<<< HEAD
        txt = path[:-3]+'txt'
        f = open(txt)
        result = f.read()
+=======
+        txt = path[:-3]+'txt'
+        f = open(txt,encoding="utf8")
+        result = f.read()
+>>>>>>> f00f855e433ca8280832a6f96cf433f9a8807039
     else :
         doc = docx.Document(path)
         fullText = []
