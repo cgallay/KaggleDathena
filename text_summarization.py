@@ -8,7 +8,7 @@ def apply(text):
         
 
 def interesting_sent(sent):
-    NER = ne_chunk(pos_tag(word_tokenize(sent)))
+    #NER = ne_chunk(pos_tag(word_tokenize(sent)))
     
     return 'keppel' in sent.lower() or 'prudential' in sent.lower()
 
