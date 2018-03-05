@@ -56,9 +56,12 @@ def exctract_pdf(path):
         pdf = None
     text = ''
     if(pdf is not None):
-        for i in range(pdf.getNumPages()):
-            page = pdf.getPage(i)
-            text+= ' ' + page.extractText()
+        try:
+            for i in range(pdf.getNumPages()):
+                page = pdf.getPage(i)
+                text+= ' ' + page.extractText()
+        except:
+            text = ' '
     else:
         print("Could not parse the PDF, ", path)
     return text 
