@@ -56,9 +56,12 @@ def exctract_pdf(path):
         pdf = None
     text = ''
     if(pdf is not None):
-        for i in range(pdf.getNumPages()):
-            page = pdf.getPage(i)
-            text+= ' ' + page.extractText()
+        try:
+            for i in range(pdf.getNumPages()):
+                page = pdf.getPage(i)
+                text+= ' ' + page.extractText()
+        except:
+            text = ' '
     else:
         print("Could not parse the PDF, ", path)
     return text 
@@ -69,18 +72,24 @@ def exctract_word(path):
         f = open(txt,encoding="utf8")
         result = f.read()
     else :
-        doc = docx.Document(path)
-        fullText = []
-        for para in doc.paragraphs:
-            fullText.append(para.text)
-        result = '\n'.join(fullText)
+        try:
+            doc = docx.Document(path)
+            fullText = []
+            for para in doc.paragraphs:
+                fullText.append(para.text)
+            result = '\n'.join(fullText)
+        except:
+            result = ""
     return result
 
 def count_occurence(text,company):
     return len(re.findall(company.lower(),text.lower()))
 
 def frequency_occurence(text,company):
-    countO = count_occurence(text,company)
+    try:
+        countO = count_occurence(text,company)
+    except:
+        countO = 0
     if(len(text)>0 and countO!=0 ):
         return countO/math.log(len(text.split()))
     else:
