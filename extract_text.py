@@ -72,11 +72,14 @@ def exctract_word(path):
         f = open(txt,encoding="utf8")
         result = f.read()
     else :
-        doc = docx.Document(path)
-        fullText = []
-        for para in doc.paragraphs:
-            fullText.append(para.text)
-        result = '\n'.join(fullText)
+        try:
+            doc = docx.Document(path)
+            fullText = []
+            for para in doc.paragraphs:
+                fullText.append(para.text)
+            result = '\n'.join(fullText)
+        except:
+            result = ""
     return result
 
 def count_occurence(text,company):
