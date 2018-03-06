@@ -46,14 +46,14 @@ def train_model(model_path='my_model.h5'):
     model.save(model_path)
 
 
-def apply(list_sentence):
+def apply(list_sentence,model):
     assert type(list_sentence) == list, 'The parameter must be a list'
     #assert type(list_sentence[0]) == str, 'arg must be a list of Sting'
     max_review_length = 1600
     l_pred = []
 
     #load the model (should be done in the constructor if a class is later created)
-    model = keras.models.load_model('model.h5')
+   
     word_index = imdb.get_word_index()
 
     for sent in list_sentence:

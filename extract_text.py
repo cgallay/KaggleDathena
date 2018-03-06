@@ -83,7 +83,10 @@ def count_occurence(text,company):
     return len(re.findall(company.lower(),text.lower()))
 
 def frequency_occurence(text,company):
-    countO = count_occurence(text,company)
+    try:
+        countO = count_occurence(text,company)
+    except:
+        countO = 0
     if(len(text)>0 and countO!=0 ):
         return countO/math.log(len(text.split()))
     else:
