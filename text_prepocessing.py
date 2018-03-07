@@ -3,10 +3,12 @@ from keras.preprocessing.text import Tokenizer
 from tqdm import tqdm
 import math
 import warnings
+import re
 
 stopwords = set(['an', 'a', 'the', '-PRON-'])
 
 def preprocess(text, nlp):
+    text = " ".join(re.findall("([A-Za-z@?:!]*)",text))
     doc = nlp(text)
     processed_text = ''
     for token in doc:
