@@ -34,3 +34,4 @@ The training is done either on [Amazon reviews](https://www.kaggle.com/bittlingm
 # Folders
 `safe`: Contains checkpoint for faster exection of the code as pickle or csv for pandas
 
+# Dependencies
