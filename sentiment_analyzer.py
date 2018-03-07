@@ -8,7 +8,7 @@ from keras.layers import LSTM, Convolution1D, Flatten, Dropout, MaxPooling1D
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.callbacks import TensorBoard
-import text_prepocessing
+import text_preprocessing
 import util
 
 def read_line(line):
@@ -33,8 +33,8 @@ def load_dataset(fname, nb_lines):
 
     #load pretrained dictonary
     dico = util.load('safe/dico.p')
-    tokenizer = text_prepocessing.generate_tokenizer(dico)
-    X = text_prepocessing.apply(X, tokenizer)[0]
+    tokenizer = text_preprocessing.generate_tokenizer(dico)
+    X = text_preprocessing.apply(X, tokenizer)[0]
     return (X, y)
 
 # def train_on_amazon():

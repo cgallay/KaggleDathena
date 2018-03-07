@@ -7,49 +7,57 @@ import re
 
 stopwords = set(['an', 'a', 'the', '-PRON-'])
 
-def preprocess(text, nlp):
-    text = " ".join(re.findall("([A-Za-z@?:!]*)",text))
-    doc = nlp(text)
-    processed_text = ''
-    for token in doc:
-        if token.lemma_ not in stopwords:
-            processed_text+= token.lemma_ + ' '
-    return processed_text
+class Preprocessor():
+    def __init__(self, max_nb_words = 10000):
+        #load spacy nlp pipline 
+        self.nlp = spacy.load('en',  disable=['parser', 'ner'])
+        self.max_nb_words = max_nb_words
+        self.tokenizer = None
 
-def preprocess_texts(texts, tokenizer):
-    pass
+    #test that either dico is not None or self.dico is not None
+    def preprocess(self, texts, dico=None): 
+        """
+        Preproces the multiple text by spliting it into token, remove stop words and encode it into a vector of integer
+        Return: a tupple (encoded_texts, dict_words)
+            encoded_texts:  ( for exemple ["I ate apple"] would return [[1, 3, 56, 78]]) 
+            dict_words:  word -> integer (for exemple {I:1, eat:3, apple: 78 })        
+        """
+        cleaned_texts = []
+        for text in tqdm(texts):
+            cleaned_texts.append(self.preprocess_entity(text))
+        if dico:
+            tokenizer = tokenizer_from_dict(dico)
+        else:
+            tokenizer = self.tokenizer
+        if self.tokenizer == None:
+            raise Exception('no dictionary prodide please call fit_and_vectorize() first')
+        
+        return tokenizer.texts_to_sequences(cleaned_texts)
 
+    def fit_and_vectorize(self, texts):       
+        cleaned_texts = []
+        for text in tqdm(texts):
+            cleaned_texts.append(self.preprocess_entity(text))
 
-def apply(texts, tokenizer = None):
-    """
-    Preproces the multiple text by spliting it into token, remove stop words and encode it into a vector of integer
-    Return: a tupple (encoded_texts, dict_words)
-        encoded_texts:  ( for exemple ["I ate apple"] would return [[1, 3, 56, 78]]) 
-        dict_words:  word -> integer (for exemple {I:1, eat:3, apple: 78 })        
-    """
-    max_nb_words = 10000 #the maximal number of words that we consider (the size of the Dict)
-    #nlp = spacy.load('en')  #loaded only once
-    nlp = spacy.load('en', disable=['parser', 'ner'])   #disable to use less memory
-    cleaned_texts = []
-    for text in tqdm(texts):
+        self.tokenizer = Tokenizer(num_words=self.max_nb_words)
+        self.tokenizer.fit_on_texts(cleaned_texts)
+        
+        #TODO Warning the number of sentence returned might be bigger
+        return (self.tokenizer.texts_to_sequences(cleaned_texts), self.tokenizer.word_index)
+
+    def preprocess_entity(self, text):
+        """Private methode"""
+        processed_text = ''
         for sub_text in split_long_text(text):
-            cleaned_texts.append(preprocess(sub_text, nlp))
-
-    if tokenizer == None:
-        tokenizer = Tokenizer(num_words=max_nb_words)
-        tokenizer.fit_on_texts(cleaned_texts)
-    
-    #TODO Warning the number of sentence returned might be bigger
-    return (tokenizer.texts_to_sequences(cleaned_texts), tokenizer.word_index)
+            sub_text = " ".join(re.findall("([A-Za-z@?:!]*)",sub_text))
+            doc = self.nlp(sub_text)
+            for token in doc:
+                if token.lemma_ not in stopwords:
+                    processed_text+= token.lemma_ + ' '
+        return processed_text
 
 
 def tokenizer_from_dict(dico):
-    tokenizer = Tokenizer()
-    tokenizer.word_index = dico
-    return tokenizer
-
-def generate_tokenizer(dico):
-    warnings.warn('use tokenizer_from_dict instead', DeprecationWarning, stacklevel=2)
     tokenizer = Tokenizer()
     tokenizer.word_index = dico
     return tokenizer
