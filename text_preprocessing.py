@@ -40,8 +40,7 @@ class Preprocessor():
         for text in tqdm(texts):
             cleaned_texts.append(self.preprocess_entity(text))
         if dico:
-            truncated_dico = {k:dico[k] for k in dico if dico[k] < self.max_nb_words}
-            tokenizer = tokenizer_from_dict(truncated_dico)
+            tokenizer = tokenizer_from_dict(truncate_dict(dico, self.max_nb_words))
         else:
             tokenizer = self.tokenizer
         if self.tokenizer == None:
@@ -56,9 +55,9 @@ class Preprocessor():
 
         self.tokenizer = Tokenizer(num_words=self.max_nb_words)
         self.tokenizer.fit_on_texts(cleaned_texts)
-        
-        #TODO Warning the number of sentence returned might be bigger
-        return (self.tokenizer.texts_to_sequences(cleaned_texts), self.tokenizer.word_index)
+
+        return (self.tokenizer.texts_to_sequences(cleaned_texts),
+            truncate_dict(self.tokenizer.word_index, self.max_nb_words))
 
     def preprocess_entity(self, text):
         """Private methode"""
@@ -71,6 +70,8 @@ class Preprocessor():
                     processed_text+= token.lemma_ + ' '
         return processed_text
 
+def truncate_dict(dico, nb_max):
+    return {k:dico[k] for k in dico if dico[k] < nb_max}
 
 def tokenizer_from_dict(dico):
     tokenizer = Tokenizer()
