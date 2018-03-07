@@ -22,6 +22,7 @@ stopwords = set(['i', 'me', 'my', 'myself', 'we', 'our','I',
 
 class Preprocessor():
     def __init__(self, max_nb_words = 10000):
+        print(max_nb_words)
         #load spacy nlp pipline 
         self.nlp = spacy.load('en',  disable=['parser', 'ner'])
         self.max_nb_words = max_nb_words
@@ -39,7 +40,8 @@ class Preprocessor():
         for text in tqdm(texts):
             cleaned_texts.append(self.preprocess_entity(text))
         if dico:
-            tokenizer = tokenizer_from_dict(dico)
+            truncated_dico = {k:dico[k] for k in dico if dico[k] < self.max_nb_words}
+            tokenizer = tokenizer_from_dict(truncated_dico)
         else:
             tokenizer = self.tokenizer
         if self.tokenizer == None:
