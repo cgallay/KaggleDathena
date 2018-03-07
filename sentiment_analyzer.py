@@ -4,10 +4,41 @@ import keras
 from keras.datasets import imdb
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.layers import LSTM, Convolution1D, Flatten, Dropout
+from keras.layers import LSTM, Convolution1D, Flatten, Dropout, MaxPooling1D
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.callbacks import TensorBoard
+import text_prepocessing
+import util
+
+def read_line(line):
+    label = line[0:11]
+    text = line[11:]
+    y = 1 if label == '__label__2 ' else 0
+    return text, y
+
+def load_dataset(fname, nb_lines):
+    count = 1
+    X = []
+    y = []
+    with open(fname) as f:
+        for line in f:
+            text, label = read_line(line)
+            #print((label, text))
+            X.append(text)
+            y.append(label)
+            if count >= nb_lines:
+                break
+            count+=1
+
+    #load pretrained dictonary
+    dico = util.load('safe/dico.p')
+    tokenizer = text_prepocessing.generate_tokenizer(dico)
+    X = text_prepocessing.apply(X, tokenizer)[0]
+    return (X, y)
+
+# def train_on_amazon():
+
 
 def train_model(model_path='my_model.h5'):
     # Using keras to load the dataset with the top_words
@@ -28,6 +59,7 @@ def train_model(model_path='my_model.h5'):
     model.add(Convolution1D(64, 3, padding='same'))
     model.add(Convolution1D(32, 3, padding='same'))
     model.add(Convolution1D(16, 3, padding='same'))
+    #model.add(MaxPooling1D(pool_size=2))
     model.add(Flatten())
     model.add(Dropout(0.2))
     model.add(Dense(180,activation='sigmoid'))
