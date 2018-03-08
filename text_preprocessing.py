@@ -21,29 +21,28 @@ stopwords = set(['i', 'me', 'my', 'myself', 'we', 'our','I',
                 'ma', '-PRON-'])
 
 class Preprocessor():
-    def __init__(self, max_nb_words = 10000):
+    def __init__(self, dico=None, max_nb_words = 10000):
         print(max_nb_words)
         #load spacy nlp pipline 
         self.nlp = spacy.load('en',  disable=['parser', 'ner'])
         self.max_nb_words = max_nb_words
         self.tokenizer = None
+        self.dico = dico
 
     #test that either dico is not None or self.dico is not None
-    def preprocess(self, texts, dico=None): 
+    def preprocess(self, texts): 
         """
         Preproces the multiple text by spliting it into token, remove stop words and encode it into a vector of integer
-        Return: a tupple (encoded_texts, dict_words)
-            encoded_texts:  ( for exemple ["I ate apple"] would return [[1, 3, 56, 78]]) 
-            dict_words:  word -> integer (for exemple {I:1, eat:3, apple: 78 })        
+        Return: the encoded_texts:  ( for exemple ["I ate apple"] would return [[1, 3, 56, 78]]) 
         """
         cleaned_texts = []
         for text in tqdm(texts):
             cleaned_texts.append(self.preprocess_entity(text))
-        if dico:
-            tokenizer = tokenizer_from_dict(truncate_dict(dico, self.max_nb_words))
+        if self.dico:
+            tokenizer = tokenizer_from_dict(truncate_dict(self.dico, self.max_nb_words))
         else:
             tokenizer = self.tokenizer
-        if self.tokenizer == None:
+        if tokenizer == None:
             raise Exception('no dictionary prodide please call fit_and_vectorize() first')
         
         return tokenizer.texts_to_sequences(cleaned_texts)
