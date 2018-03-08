@@ -13,7 +13,7 @@ import util
 
 class SentimentAnalyzer():
     datasets = ['Amazon', 'IMDB']
-    nb_lines_amazon = 10000
+    nb_lines_amazon = 100
     def __init__(self, model_path=None):
         dico = util.load('safe/dico.p')
         self.preprocessor = text_preprocessing.Preprocessor(dico)
@@ -25,7 +25,7 @@ class SentimentAnalyzer():
     def train(self, dataset='Amazon', model_path='my_model.h5',epochs=1, max_sent_length=1600, top_words=10000):
         assert dataset in self.datasets, 'Dataset should be in that list ' + str(self.datasets)
         if dataset == 'Amazon':
-            X_train, y_train = load_dataset('data', self.nb_lines_amazon)
+            X_train, y_train = load_dataset('dataset/amazonreviews/data', self.nb_lines_amazon)
         else:
             (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
         X_train = sequence.pad_sequences(X_train, maxlen=max_sent_length)
@@ -101,27 +101,6 @@ def load_dataset(fname, nb_lines):
 
     #load pretrained dictonary
     dico = util.load('safe/dico.p')
-    preprocessor = text_preprocessing.Preprocessor() #TODO use the good number of max_word
-    X = preprocessor.preprocess(X, dico)
+    preprocessor = text_preprocessing.Preprocessor(dico=dico) #TODO use the good number of max_word
+    X = preprocessor.preprocess(X)
     return (X, y)
-
-
-def apply(list_sentence,model):
-    assert type(list_sentence) == list, 'The parameter must be a list'
-    #assert type(list_sentence[0]) == str, 'arg must be a list of Sting'
-    max_review_length = 1600
-    l_pred = []
-
-    #load the model (should be done in the constructor if a class is later created)
-   
-    word_index = imdb.get_word_index()
-
-    for sent in list_sentence:
-        words = sent.lower().split()
-        new_data = np.array([word_index[word] if word in word_index else 0 for word in words])
-        new_data = [i if i < 10000 else 0 for i in new_data]
-        #print(new_data)
-        l_pred.append(new_data)
-    l_pred = sequence.pad_sequences(l_pred, maxlen=max_review_length)
-    #print(model.predict_classes(l_pred))
-    return model.predict_proba(l_pred)
