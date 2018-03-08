@@ -35,3 +35,9 @@ The training is done either on [Amazon reviews](https://www.kaggle.com/bittlingm
 `safe`: Contains checkpoint for faster exection of the code as pickle or csv for pandas
 
 # Dependencies
+```
+pip install PyPDF2
+pip install python-docx
+pip install xlrd
+pip install pdfrw
+```
