@@ -1,0 +1,1 @@
+This folder is where the keras model are stored after they are trained

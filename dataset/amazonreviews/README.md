@@ -1,0 +1,1 @@
+This folder contain a single file name `data` which can be downloaded from [Kaggle](https://www.kaggle.com/bittlingmayer/amazonreviews/data)

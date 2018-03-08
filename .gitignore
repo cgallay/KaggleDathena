@@ -1,7 +1,4 @@
-files/
 .ipynb_checkpoints/
 __pycache__/
 *.pdf
 logs/
-dataset/
-models/
