@@ -1,5 +1,3 @@
-from nltk.tokenize import sent_tokenize, word_tokenize
-from nltk import pos_tag, ne_chunk
 import spacy
 
 def apply(text, interest):
