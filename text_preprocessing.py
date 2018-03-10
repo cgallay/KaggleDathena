@@ -22,10 +22,12 @@ stopwords = set(['i', 'me', 'my', 'myself', 'we', 'our','I',
 
 class Preprocessor():
     def __init__(self, dico=None, max_nb_words = 10000):
-        print(max_nb_words)
         #load spacy nlp pipline 
         self.nlp = spacy.load('en',  disable=['parser', 'ner'])
-        self.max_nb_words = max_nb_words
+        if dico == None:
+            self.max_nb_words = max_nb_words
+        else:
+            self.max_nb_words = len(dico) + 1
         self.tokenizer = None
         self.dico = dico
 
@@ -59,7 +61,7 @@ class Preprocessor():
             truncate_dict(self.tokenizer.word_index, self.max_nb_words))
 
     def preprocess_entity(self, text):
-        """Private methode"""
+        """Private methode: clean text, lemmatize and remove stopWords"""
         processed_text = ''
         for sub_text in split_long_text(text):
             sub_text = " ".join(re.findall("([A-Za-z@?:!]*)",sub_text))

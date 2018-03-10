@@ -15,36 +15,38 @@ from nltk.corpus import sentiwordnet as swn
 
 datasets = ['Amazon', 'IMDB']
 class SentimentAnalyzer():
-    nb_lines_amazon = 100
+    nb_lines_amazon = 500000
     max_sent_length = 1600
     def __init__(self, model_path=None):
         word_index = util.load('safe/vocab_gensim.p') #util.load('safe/dico.p') #imdb.get_word_index()
-        self.preprocessor = text_preprocessing.Preprocessor(word_index)
+        self.preprocessor = text_preprocessing.Preprocessor(word_index, 100000)
         if model_path:
             self.model = keras.models.load_model(model_path)
         else:
             #model need to be trained
             pass
-    def train(self, dataset='Amazon', model_path='models/my_model.h5',epochs=1, top_words=10000):
+    def train(self, dataset='Amazon', model_path='models/my_model.h5',epochs=1, top_words=100000, emb_trainable=False):
         assert dataset in datasets, 'Dataset should be in that list ' + str(datasets)
         if dataset == 'Amazon':
             X_train, y_train = load_dataset('dataset/amazonreviews/data', self.nb_lines_amazon)
         else:
             (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
             raise Exception('Dead code... This should be retest again')
+        
+        #print(X_train[0:10])
         X_train = sequence.pad_sequences(X_train, maxlen=self.max_sent_length)
         #X_test = sequence.pad_sequences(X_test, maxlen=max_sent_length)      
         
         #load the pretrained embeddings
         weights = np.load(open('safe/embeddings.np', 'rb'))
+        #print(weights.shape)
         top_words = weights.shape[0]
         embedding_vecor_length = weights.shape[1]
         #print(f'weight loaded are of cardinality {top_words} and size {embedding_vecor_length}')
 
         # Using embedding from Keras
         model = Sequential()
-        model.add(Embedding(top_words, embedding_vecor_length, weights=[weights], 
-            trainable=False, input_length=self.max_sent_length))
+        model.add(Embedding(top_words, embedding_vecor_length, input_length=self.max_sent_length))
 
         # Convolutional model (3x conv, flatten, 2x dense)
         model.add(Convolution1D(64, 3, padding='same'))
@@ -59,7 +61,7 @@ class SentimentAnalyzer():
 
         # Log to tensorboard
         tensorBoardCallback = TensorBoard(log_dir='./logs', write_graph=True)
-        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss=model_loss_with_reg, optimizer='adam', metrics=['accuracy'])
 
         model.fit(X_train, y_train, validation_split=0.2, epochs=epochs, callbacks=[tensorBoardCallback], batch_size=64)
 
@@ -130,3 +132,8 @@ def load_dataset(fname, nb_lines):
     X = preprocessor.preprocess(X)
     util.save((X,y), 'safe/Amazon-'+str(nb_lines)+'.p')
     return (X, y)
+
+#keras loss function
+def model_loss_with_reg(y_true, y_pred):
+    cross_entropy = keras.losses.binary_crossentropy(y_true, y_pred)
+    return cross_entropy
