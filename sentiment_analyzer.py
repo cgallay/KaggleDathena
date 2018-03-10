@@ -10,36 +10,40 @@ from keras.preprocessing import sequence
 from keras.callbacks import TensorBoard
 import text_preprocessing
 import util
+import numpy as np
 
 class SentimentAnalyzer():
     datasets = ['Amazon', 'IMDB']
     nb_lines_amazon = 100
+    max_sent_length = 1600
     def __init__(self, model_path=None):
-        dico = util.load('safe/dico.p')
-        self.preprocessor = text_preprocessing.Preprocessor(dico)
+        word_index = util.load('safe/vocab_gensim.p') #util.load('safe/dico.p') #imdb.get_word_index()
+        self.preprocessor = text_preprocessing.Preprocessor(word_index)
         if model_path:
             self.model = keras.models.load_model(model_path)
         else:
             #model need to be trained
             pass
-    def train(self, dataset='Amazon', model_path='my_model.h5',epochs=1, max_sent_length=1600, top_words=10000):
+    def train(self, dataset='Amazon', model_path='models/my_model.h5',epochs=1, top_words=10000):
         assert dataset in self.datasets, 'Dataset should be in that list ' + str(self.datasets)
         if dataset == 'Amazon':
             X_train, y_train = load_dataset('dataset/amazonreviews/data', self.nb_lines_amazon)
         else:
             (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
-        X_train = sequence.pad_sequences(X_train, maxlen=max_sent_length)
+            raise Exception('Dead code... This should be retest again')
+        X_train = sequence.pad_sequences(X_train, maxlen=self.max_sent_length)
         #X_test = sequence.pad_sequences(X_test, maxlen=max_sent_length)      
         
         #load the pretrained embeddings
-        weights = util.load('safe/word_embeddings.p')
+        weights = np.load(open('safe/embeddings.np', 'rb'))
         top_words = weights.shape[0]
         embedding_vecor_length = weights.shape[1]
-        print(f'weight loaded are of cardinality {top_words} and size {embedding_vecor_length}')
+        #print(f'weight loaded are of cardinality {top_words} and size {embedding_vecor_length}')
 
         # Using embedding from Keras
         model = Sequential()
-        model.add(Embedding(top_words, embedding_vecor_length, weights=[weights], trainable=True,input_length=max_sent_length))
+        model.add(Embedding(top_words, embedding_vecor_length, weights=[weights], 
+            trainable=False, input_length=self.max_sent_length))
 
         # Convolutional model (3x conv, flatten, 2x dense)
         model.add(Convolution1D(64, 3, padding='same'))
@@ -70,11 +74,9 @@ class SentimentAnalyzer():
        
         #TODO need to be checked if the model was trained using IMDB or Amazon
         #For the moment let's assume Amazon
-        word_index = util.load('safe/dico.p') #imdb.get_word_index()
-        max_sent_length = 1600   
         new_data = self.preprocessor.preprocess(list_sentence)
         
-        l_pred = sequence.pad_sequences(new_data, maxlen=max_sent_length)
+        l_pred = sequence.pad_sequences(new_data, maxlen=self.max_sent_length)
         #print(model.predict_classes(l_pred))
         return self.model.predict_proba(l_pred)
 
@@ -100,7 +102,7 @@ def load_dataset(fname, nb_lines):
             count+=1
 
     #load pretrained dictonary
-    dico = util.load('safe/dico.p')
+    dico = util.load('safe/vocab_gensim.p')
     preprocessor = text_preprocessing.Preprocessor(dico=dico) #TODO use the good number of max_word
     X = preprocessor.preprocess(X)
     return (X, y)
