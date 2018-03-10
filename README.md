@@ -40,4 +40,13 @@ pip install PyPDF2
 pip install python-docx
 pip install xlrd
 pip install pdfrw
+pip install sumy
+
+
+pip install nltk
+
+
+python -m spacy download en
+import nltk
+nltk.download('punkt')
 ```
