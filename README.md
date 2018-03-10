@@ -41,8 +41,7 @@ pip install python-docx
 pip install xlrd
 pip install pdfrw
 pip install sumy
-
-
+pip install gensim
 pip install nltk
 
 
