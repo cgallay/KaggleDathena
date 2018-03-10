@@ -5,6 +5,9 @@ import math
 import warnings
 import re
 
+"""
+List of custom stop words.
+"""
 stopwords = set(['i', 'me', 'my', 'myself', 'we', 'our','I',
                'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your',
                'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her',
@@ -20,6 +23,9 @@ stopwords = set(['i', 'me', 'my', 'myself', 'we', 'our','I',
                'just','should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y',
                 'ma', '-PRON-'])
 
+"""
+Class called to preprocess text. We use a class to load dictionnary and a model only once.
+"""
 class Preprocessor():
     def __init__(self, dico=None, max_nb_words = 10000):
         #load spacy nlp pipline 
@@ -49,7 +55,12 @@ class Preprocessor():
         
         return tokenizer.texts_to_sequences(cleaned_texts)
 
-    def fit_and_vectorize(self, texts):       
+    def fit_and_vectorize(self, texts):   
+        """
+        Preprocess all texts with the pipeline preprocess tokenize lemmatize and stop word removal
+        texts: array of text to fit and vectorize
+        Return: phrased vectorized and dictionnary
+        """
         cleaned_texts = []
         for text in tqdm(texts):
             cleaned_texts.append(self.preprocess_entity(text))
@@ -72,9 +83,11 @@ class Preprocessor():
         return processed_text
 
 def truncate_dict(dico, nb_max):
+    """Helper to truncate a dictionnary to the nb_max first word"""
     return {k:dico[k] for k in dico if dico[k] < nb_max}
 
 def tokenizer_from_dict(dico):
+    """ Define a new tokenizer in function of a tokenizer """
     tokenizer = Tokenizer()
     tokenizer.word_index = dico
     return tokenizer

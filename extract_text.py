@@ -6,7 +6,9 @@ import math
 import csv
 from pdfrw import PdfReader
 
+
 def apply(file_path):
+    """Method called on the path that choose which function to use in function of the type """
     file_type = get_file_type(file_path)
     if file_type == 'EXCEL':
             return exctract_excel(file_path)
@@ -17,6 +19,7 @@ def apply(file_path):
 
         
 def mapperOpener(path):
+    """ Use to open the mapper ID-path"""
     mapping = []
     with open(path, 'r') as csvfile:
         spamreader = csv.reader(csvfile,delimiter='|')
@@ -25,6 +28,7 @@ def mapperOpener(path):
     return mapping
 
 def get_file_type(file_path):
+    """ Return which type of document we are given in argument"""
     if file_path[-3:] == 'pdf':
         return 'PDF'
     if file_path[-3:] == 'xls' or file_path[-4:] == 'xlsx':
@@ -35,6 +39,10 @@ def get_file_type(file_path):
 
 
 def exctract_excel(path):
+    """ Method to extract an Excel.
+    It basically concatenates all row together
+    Return : All row values concatenated into a string.
+    """
     strRe = ""
     try:
         wb = xlrd.open_workbook(path)
@@ -50,6 +58,10 @@ def exctract_excel(path):
     return strRe
     
 def exctract_pdf(path):
+    """
+    PDF parser
+    Return:  a string containing text from a pdf
+    """
     try:
         pdf = PyPDF2.PdfFileReader(path)
     except:
@@ -67,6 +79,11 @@ def exctract_pdf(path):
     return text 
 
 def exctract_word(path):
+    """
+    Extracter of word
+    If its is a .doc, take the txt equivalent that we transformed with Antiword
+    Return : string containg all word text
+    """
     if(path.endswith("doc")):
         txt = path[:-3]+'txt'
         f = open(txt,encoding="utf8")
@@ -83,9 +100,15 @@ def exctract_word(path):
     return result
 
 def count_occurence(text,company):
+    """
+    Return : number of occurence of the word given in argument in text
+    """
     return len(re.findall(company.lower(),text.lower()))
 
 def frequency_occurence(text,company):
+    """
+    Return : A frequency count of the word given, log normalized, in text
+    """
     try:
         countO = count_occurence(text,company)
     except:
@@ -97,6 +120,7 @@ def frequency_occurence(text,company):
 
 
 def extract_title(path):
+    """Extract title from a given document (not really useful)"""
     if path[-3:] == 'pdf':
         try:
             pdf = PdfReader(path).Info.Title
