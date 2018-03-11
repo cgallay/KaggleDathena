@@ -4,16 +4,16 @@
 # files
 ## Notebooks
 
-`DataFrameCreation.ipynb` : Read and exctract freatures from all documents and save it as a pandas dataFrame (in `safe/df_file_final.csv`) 
+`DataFrameCreation.ipynb` : Read and exctract features from all documents and save it as a pandas dataFrame (in `safe/df_file_final.csv`) 
 
 `Pipline_V0.2.ipynb`: Main notebook that create our pipline for this project (using the other modules) and that create the submission file
 
 `Test.ipynb`: Some unit test for utility functions
 
-`Train_sentiment_analyser.ipynb`: Notebook to exectue to train our sentiment annalyser CNN. Warring you better have a good **GPU** to train it.
+`Train_sentiment_analyser.ipynb`: Notebook to execute that train our sentiment annalyser CNN. **Warning** you better have a good **GPU** to train it.
 The training is done either on [Amazon reviews](https://www.kaggle.com/bittlingmayer/amazonreviews/data) or imdb movie review using the [keras dataset](https://keras.io/datasets/).
 
-`Train_word_embeddings.ipynb`: based on the Corpus (all document) this learn a vector representation for each lemma (word) and a [mapping dictionary](safe/dico.p).
+`Train_word_embeddings.ipynb`: based on the Corpus (all document) this learns a vector representation for each lemma (word) and a [mapping dictionary](safe/dico.p).
 
 
 ## Python code (module)
@@ -28,7 +28,7 @@ The training is done either on [Amazon reviews](https://www.kaggle.com/bittlingm
 `util.py`: Some utility function which doesn't find a place in other an file.
 
 ## Others
-`submission_mapper.csv`: provided file slightly modified (*name of the files containing parenthesis*)
+`submission_mapper.csv`: provided file slightly modified (*name of the .doc containing parenthesis have changed*)
 
 
 # Folders
