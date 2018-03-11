@@ -94,6 +94,7 @@ class sentiwordnetAnalyzer():
     def __init__(self, model_path=None):
         word_index = util.load('safe/vocab_gensim.p') #util.load('safe/dico.p') #imdb.get_word_index()
         self.preprocessor = text_preprocessing.Preprocessor(word_index)
+        raise Exception("Class is not fully implemented yet...")
 
     def train(self, dataset = "Amazon", top_words=10000):
         """Once the CNN is train we can train a model on top of this one.
@@ -109,6 +110,10 @@ class sentiwordnetAnalyzer():
                
 
 def read_line(line):
+    """This methode read one line of the Amazon dataset and extract the corresponding label and text feature
+    Return:
+        (X, y): a tupple consisting of the text feature and its label y=0 if negatif and 1 if possitif 
+    """
     nb_comparaison = 100 #this is the number of pairs that we compare for each batch
     label = line[0:11]
     text = line[11:]
@@ -116,7 +121,7 @@ def read_line(line):
     return text, y
 
 def load_dataset(fname, nb_lines):
-    """Load the Amazon dataset"""
+    """Load the Amazon dataset if not already present on disc"""
     import os.path
     if os.path.isfile('safe/Amazon-'+str(nb_lines)+'.p'):
         return util.load('safe/Amazon-'+str(nb_lines)+'.p')
@@ -145,45 +150,47 @@ def sampling(args):
     #TODO not fix the maxval param
     return K.random_uniform(shape=[], minval=1, maxval=99999, dtype='int32')
 
-def square_diff(args):
-    diff = args
-    #diff = keras.layers.subtract([sent_sim, corpus_sim])
-    return K.square(diff)
-
-def wordCorpuLookup(args):
-    indexs, weight = args
-    return weight[indexs]
 
 weight = np.load(open('safe/embeddings.np', 'rb'))
 nb_rand_sample = 1000
 lambda_reg_emb = 0.1
 
 def get_reg():
+    """Return the function use for embedding regularization, this function is needed for keras to reload the save model"""
     return embbeding_reg
 
 def embbeding_reg(weight_matrix):
+    """Penalize the weight of the embedding such that two similar words in the corpus embedding spaced trained using gensim stay similar in the new emebedding space"""
     shape = weight_matrix.shape
-    #print(type(shape))
-    #z1 = np.random.randint(0,shape[0], 100)
+
+    #Sample at random nb_rand_sample of words pairs
     z1 = tf.random_uniform([nb_rand_sample], minval = 0, maxval = shape[0] - 1, dtype = tf.int32)
-    #z2 = np.random.randint(0,shape[0], 100)
     z2 = tf.random_uniform([nb_rand_sample], minval = 0, maxval = shape[0] - 1, dtype = tf.int32)
-
-    vectors1 = tf.gather(weight_matrix, z1, name='random_gather')
-    vectors2 = tf.gather(weight_matrix, z2)
-    vectors_1 = K.l2_normalize(vectors1, 1)
-    vectors_2 = K.l2_normalize(vectors2, 1)
-
-    vec = K.sum(vectors_1 * vectors_2, axis=1) #scalar product
     
-    weight_tensor = K.constant(weight)
-    vectors1_corp = tf.gather(weight_tensor, z1)
-    vectors2_corp = tf.gather(weight_tensor, z2)
-    vectors_1_corp = K.l2_normalize(vectors1_corp, 1)
-    vectors_2_corp = K.l2_normalize(vectors2_corp, 1)
-    vec_corp = K.sum(vectors_1_corp * vectors_2_corp, axis=1) #scalar product
+    #Select the corresponding vector in the embedding space
+    vec_1 = tf.gather(weight_matrix, z1)
+    vec_2 = tf.gather(weight_matrix, z2)
 
-    diff = vec - vec_corp
+    #compute the cosine similarity between each pairs
+    vec_1_norm = K.l2_normalize(vec_1, 1)
+    vec_2_norm = K.l2_normalize(vec_2, 1)
+    cosine_sim = K.sum(vec_1_norm * vec_2_norm, axis=1)
+    
+    #initialize the pretrain embedding space
+    weight_objective = K.constant(weight)
+
+    #Select the corresponding vector in the embedding space
+    vec_1_corp = tf.gather(weight_objective, z1)
+    vec_2_corp = tf.gather(weight_objective, z2)
+
+    #compute the cosine similarity between each pairs
+    vec_1_corp_norm = K.l2_normalize(vec_1_corp, 1)
+    vec_2_corp_norm = K.l2_normalize(vec_2_corp, 1)
+    cosine_sim_corp = K.sum(vec_1_corp_norm * vec_2_corp_norm, axis=1) #scalar product
+
+    #Compute the Mean Square Error
+    diff = cosine_sim - cosine_sim_corp
     square = K.square(diff) #Square error
+    MSE = K.mean(square)
 
-    return lambda_reg_emb * K.mean(square) # MSE
+    return lambda_reg_emb * MSE
