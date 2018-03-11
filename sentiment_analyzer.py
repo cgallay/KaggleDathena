@@ -173,28 +173,29 @@ def square_diff(args):
     diff = args
     #diff = keras.layers.subtract([sent_sim, corpus_sim])
     return K.square(diff)
-    
+
 def wordCorpuLookup(args):
     indexs, weight = args
     return weight[indexs]
 
 weight = np.load(open('safe/embeddings.np', 'rb'))
+nb_rand_sample = 100
+lambda_reg_emb = 0.1
 
 def embbeding_reg(weight_matrix):
     shape = weight_matrix.shape
     #print(type(shape))
-    z1 = np.random.randint(0,shape[0], 100)
-    z2 = np.random.randint(0,shape[0], 100)
-    vectors1 = tf.gather(weight_matrix, z1)
+    #z1 = np.random.randint(0,shape[0], 100)
+    z1 = tf.random_uniform([nb_rand_sample], minval = 0, maxval = shape[0] - 1, dtype = tf.int32)
+    #z2 = np.random.randint(0,shape[0], 100)
+    z2 = tf.random_uniform([nb_rand_sample], minval = 0, maxval = shape[0] - 1, dtype = tf.int32)
+
+    vectors1 = tf.gather(weight_matrix, z1, name='random_gather')
     vectors2 = tf.gather(weight_matrix, z2)
     vectors_1 = K.l2_normalize(vectors1, 1)
     vectors_2 = K.l2_normalize(vectors2, 1)
-    print(vectors_1.shape)
-    print(vectors_2.shape)
-    print('====================================')
 
     vec = K.sum(vectors_1 * vectors_2, axis=1) #scalar product
-    print(vec.shape)
     
     weight_tensor = K.constant(weight)
     vectors1_corp = tf.gather(weight_tensor, z1)
@@ -206,4 +207,4 @@ def embbeding_reg(weight_matrix):
     diff = vec - vec_corp
     square = K.square(diff) #Square error
 
-    return 0.01 * K.mean(square) # MSE
+    return lambda_reg_emb * K.mean(square) # MSE
