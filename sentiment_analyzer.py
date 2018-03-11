@@ -179,7 +179,7 @@ def wordCorpuLookup(args):
     return weight[indexs]
 
 weight = np.load(open('safe/embeddings.np', 'rb'))
-nb_rand_sample = 100
+nb_rand_sample = 1000
 lambda_reg_emb = 0.1
 
 def embbeding_reg(weight_matrix):
