@@ -99,12 +99,14 @@ def exctract_word(path):
             result = ""
     return result
 
+#Unused
 def count_occurence(text,company):
     """
     Return : number of occurence of the word given in argument in text
     """
     return len(re.findall(company.lower(),text.lower()))
 
+#Unused
 def frequency_occurence(text,company):
     """
     Return : A frequency count of the word given, log normalized, in text
@@ -118,7 +120,7 @@ def frequency_occurence(text,company):
     else:
         return 0
 
-
+#Unused
 def extract_title(path):
     """Extract title from a given document (not really useful)"""
     if path[-3:] == 'pdf':
