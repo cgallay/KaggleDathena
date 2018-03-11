@@ -4,9 +4,9 @@
 # files
 ## Notebooks
 
-[`Data_frame_creation.ipynb`](Data_frame_creation.ipynb) : Read and exctract features from all documents and save it as a pandas dataFrame (in `safe/df_file_final.csv`) 
-
 [`Pipeline.ipynb`](Pipeline.ipynb): Main notebook that create our pipline for this project (using the other modules) and that create the submission file
+
+[`Data_frame_creation.ipynb`](Data_frame_creation.ipynb) : Read and exctract features from all documents and save it as a pandas dataFrame (in `safe/df_file_final.csv`) 
 
 [`Test.ipynb`](Test.ipynb): Some unit test for utility functions
 
