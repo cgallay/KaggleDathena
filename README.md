@@ -1,5 +1,5 @@
 # KaggleDathena
-To understand our project please read our [pdf report](Reputation Analysis - Dathena competition.pdf)
+To understand our project please read our [pdf report](Reputation_Analysis_Dathena_competition.pdf)
 
 # files
 ## Notebooks
