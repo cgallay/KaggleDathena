@@ -1,5 +1,6 @@
 # LSTM for sequence classification in the IMDB dataset
 import keras
+import tensorflow as tf
 from keras import backend as K
 from keras.datasets import imdb
 from keras.models import Sequential, Model
@@ -12,54 +13,48 @@ import text_preprocessing
 import util
 import numpy as np
 from nltk.corpus import sentiwordnet as swn
-import tensorflow as tf
 
 datasets = ['Amazon', 'IMDB']
-nb_comparaison = 100 #this is the number of pairs that we compare for each batch
+nb_rand_sample = 1000 #this is the number of pairs that we compare for each batch
+weights_corp = np.load(open('safe/embeddings.np', 'rb'))
+sigma_reg_emb = 0.1    #hyper parameter for embedding regularization term
 
 class SentimentAnalyzer():
-    nb_lines_amazon = 500000
-    max_sent_length = 1600
+    nb_lines_amazon = 500000    #nb of training to read from the Amazon review dataset
+    max_sent_length = 1600  #Maximent size of a sentence that the analyzer can fit
     def __init__(self, model_path=None):
-        word_index = util.load('safe/vocab_gensim.p') #util.load('safe/dico.p') #imdb.get_word_index()
+        word_index = util.load('safe/vocab_gensim.p')
         self.preprocessor = text_preprocessing.Preprocessor(word_index, 100000)
         if model_path:
-            print(type(embbeding_reg))
             with keras.utils.CustomObjectScope({'embbeding_reg':get_reg}):
                 self.model = keras.models.load_model(model_path)
-        else:
-            #model need to be trained
-            pass
+    
     def train(self, dataset='Amazon', model_path='models/my_model.h5',epochs=1, top_words=100000):
         assert dataset in datasets, 'Dataset should be in that list ' + str(datasets)
         if dataset == 'Amazon':
             X_train, y_train = load_dataset('dataset/amazonreviews/data', self.nb_lines_amazon)
         else:
             (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
-            raise Exception('Dead code... This should be retest again')
+            #as the preprocessing is not the same we dont support this dataset anymore
+            raise Exception('IMDB dataset is not supported anymore for training')
         
-        #print(X_train[0:10])
-        X_train = sequence.pad_sequences(X_train, maxlen=self.max_sent_length)
-        #X_test = sequence.pad_sequences(X_test, maxlen=max_sent_length)      
+        X_train = sequence.pad_sequences(X_train, maxlen=self.max_sent_length)  
         
-        model_2 = self.generateModel()
+        model = self.generateModel()
+
         # Log to tensorboard
         tensorBoardCallback = TensorBoard(log_dir='./logs', write_graph=True)
-        model_2.fit(X_train, y_train , validation_split=0.2, epochs=epochs, callbacks=[tensorBoardCallback], batch_size=64)
+        model.fit(X_train, y_train , validation_split=0.2, epochs=epochs, callbacks=[tensorBoardCallback], batch_size=64)
 
-        # Evaluation on the test set
-        #scores = model.evaluate(X_test, y_test, verbose=0)
-        #print("Accuracy: %.2f%%" % (scores[1]*100))
-        model_2.save(model_path)
+        model.save(model_path)
 
     def generateModel(self):
-        weights = np.load(open('safe/embeddings.np', 'rb'))
-        top_words = weights.shape[0]
-        embedding_vecor_length = weights.shape[1]
+        top_words = weights_corp.shape[0]
+        embedding_vecor_length = weights_corp.shape[1]
 
         #define our own Keras model
         main_input = Input(shape=(self.max_sent_length,), dtype='int32', name='word_input')
-        embedding = Embedding(output_dim=embedding_vecor_length, input_dim=top_words, embeddings_regularizer=embbeding_reg)# share embeding
+        embedding = Embedding(output_dim=embedding_vecor_length, input_dim=top_words, embeddings_regularizer=embbeding_reg) #share embeding layer
 
         out_emb = embedding(main_input)
         conv1 = Convolution1D(64, 3, padding='same')(out_emb)
@@ -71,24 +66,23 @@ class SentimentAnalyzer():
         drop2 = Dropout(0.2)(dense1)
         sentiment_output = Dense(1,activation='sigmoid', name='sentiment_output')(drop2) 
 
-        model_2 = Model(inputs=main_input, outputs=sentiment_output)
+        model = Model(inputs=main_input, outputs=sentiment_output)
      
-        model_2.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        return model_2
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        print(model.summary())
+        return model
 
     def predict(self, list_sentence):
         """the list_sentence provided is of raw string data"""
         assert type(list_sentence) == list, 'The parameter must be a list'
-        #assert type(list_sentence[0]) == str, 'arg must be a list of Sting'
        
-        #TODO need to be checked if the model was trained using IMDB or Amazon
-        #For the moment let's assume Amazon
         new_data = self.preprocessor.preprocess(list_sentence)
         
         l_pred = sequence.pad_sequences(new_data, maxlen=self.max_sent_length)
-        #print(model.predict_classes(l_pred))
+
         return self.model.predict(l_pred)
 
+#Unused 
 class sentiwordnetAnalyzer():
     nb_lines_amazon = 100 #dont need to be as big as for the CNN as this model is much simpler
     def __init__(self, model_path=None):
@@ -114,7 +108,6 @@ def read_line(line):
     Return:
         (X, y): a tupple consisting of the text feature and its label y=0 if negatif and 1 if possitif 
     """
-    nb_comparaison = 100 #this is the number of pairs that we compare for each batch
     label = line[0:11]
     text = line[11:]
     y = 1 if label == '__label__2 ' else 0
@@ -140,8 +133,9 @@ def load_dataset(fname, nb_lines):
 
     #load pretrained dictonary
     dico = util.load('safe/vocab_gensim.p')
-    preprocessor = text_preprocessing.Preprocessor(dico=dico) #TODO use the good number of max_word
+    preprocessor = text_preprocessing.Preprocessor(dico=dico)
     X = preprocessor.preprocess(X)
+    #save the loaded dataset in a pickle for speeding up next run
     util.save((X,y), 'safe/Amazon-'+str(nb_lines)+'.p')
     return (X, y)
 
@@ -149,11 +143,6 @@ def sampling(args):
     '''Sample at random one vector'''
     #TODO not fix the maxval param
     return K.random_uniform(shape=[], minval=1, maxval=99999, dtype='int32')
-
-
-weight = np.load(open('safe/embeddings.np', 'rb'))
-nb_rand_sample = 1000
-lambda_reg_emb = 0.1
 
 def get_reg():
     """Return the function use for embedding regularization, this function is needed for keras to reload the save model"""
@@ -177,7 +166,7 @@ def embbeding_reg(weight_matrix):
     cosine_sim = K.sum(vec_1_norm * vec_2_norm, axis=1)
     
     #initialize the pretrain embedding space
-    weight_objective = K.constant(weight)
+    weight_objective = K.constant(weights_corp)
 
     #Select the corresponding vector in the embedding space
     vec_1_corp = tf.gather(weight_objective, z1)
@@ -193,4 +182,4 @@ def embbeding_reg(weight_matrix):
     square = K.square(diff) #Square error
     MSE = K.mean(square)
 
-    return lambda_reg_emb * MSE
+    return sigma_reg_emb * MSE
