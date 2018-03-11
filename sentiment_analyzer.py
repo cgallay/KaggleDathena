@@ -18,13 +18,15 @@ datasets = ['Amazon', 'IMDB']
 nb_comparaison = 100 #this is the number of pairs that we compare for each batch
 
 class SentimentAnalyzer():
-    nb_lines_amazon = 100
+    nb_lines_amazon = 500000
     max_sent_length = 1600
     def __init__(self, model_path=None):
         word_index = util.load('safe/vocab_gensim.p') #util.load('safe/dico.p') #imdb.get_word_index()
         self.preprocessor = text_preprocessing.Preprocessor(word_index, 100000)
         if model_path:
-            self.model = keras.models.load_model(model_path)
+            print(type(embbeding_reg))
+            with keras.utils.CustomObjectScope({'embbeding_reg':get_reg}):
+                self.model = keras.models.load_model(model_path)
         else:
             #model need to be trained
             pass
@@ -71,7 +73,7 @@ class SentimentAnalyzer():
 
         model_2 = Model(inputs=main_input, outputs=sentiment_output)
      
-        model_2.compile(loss=model_loss_with_reg, optimizer='adam', metrics=['accuracy'])
+        model_2.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model_2
 
     def predict(self, list_sentence):
@@ -85,7 +87,7 @@ class SentimentAnalyzer():
         
         l_pred = sequence.pad_sequences(new_data, maxlen=self.max_sent_length)
         #print(model.predict_classes(l_pred))
-        return self.model.predict_proba(l_pred)
+        return self.model.predict(l_pred)
 
 class sentiwordnetAnalyzer():
     nb_lines_amazon = 100 #dont need to be as big as for the CNN as this model is much simpler
@@ -138,15 +140,6 @@ def load_dataset(fname, nb_lines):
     util.save((X,y), 'safe/Amazon-'+str(nb_lines)+'.p')
     return (X, y)
 
-#keras loss function
-def model_loss_with_reg(y_true, y_pred):
-    cross_entropy = keras.losses.binary_crossentropy(y_true, y_pred)
-    return cross_entropy
-def loss_MSE_sim(y_true, y_pred):
-    #y_true is not usefull
-    return K.mean(y_pred)
-
-
 def sampling(args):
     '''Sample at random one vector'''
     #TODO not fix the maxval param
@@ -164,6 +157,9 @@ def wordCorpuLookup(args):
 weight = np.load(open('safe/embeddings.np', 'rb'))
 nb_rand_sample = 1000
 lambda_reg_emb = 0.1
+
+def get_reg():
+    return embbeding_reg
 
 def embbeding_reg(weight_matrix):
     shape = weight_matrix.shape
