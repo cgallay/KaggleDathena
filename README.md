@@ -49,6 +49,7 @@ pip install pdfrw
 pip install sumy
 pip install gensim
 pip install nltk
+pip install glob2
 
 
 python -m spacy download en
