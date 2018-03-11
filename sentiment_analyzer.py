@@ -28,7 +28,7 @@ class SentimentAnalyzer():
         else:
             #model need to be trained
             pass
-    def train(self, dataset='Amazon', model_path='models/my_model.h5',epochs=1, top_words=100000, emb_trainable=False):
+    def train(self, dataset='Amazon', model_path='models/my_model.h5',epochs=1, top_words=100000):
         assert dataset in datasets, 'Dataset should be in that list ' + str(datasets)
         if dataset == 'Amazon':
             X_train, y_train = load_dataset('dataset/amazonreviews/data', self.nb_lines_amazon)
@@ -68,24 +68,7 @@ class SentimentAnalyzer():
         dense1 = Dense(180,activation='sigmoid')(drop1)
         drop2 = Dropout(0.2)(dense1)
         sentiment_output = Dense(1,activation='sigmoid', name='sentiment_output')(drop2) 
-        #fake_input = Input(batch_shape=(100,), name='fake_input')
-        #z1 = Lambda(sampling, output_shape=[], name='rand_1')([fake_input]) #select random pair of embeddings
-        #z2 = Lambda(sampling, output_shape=[], name='rand_2')([fake_input]) #select random pair of embeddings
-        #load the pretrained embeddings
-        #embedding_corpus = Embedding(output_dim=embedding_vecor_length, input_dim=top_words,
-        #    weights=[weights], trainable=False, name='corpus_emb')
-        #emb_1 = embedding(z1)
-        #emb_2 = embedding(z2)
-        #emb_corp_1 = embedding_corpus(z1)
-        #emb_corp_2 = embedding_corpus(z2)
 
-        #sent_sim = Dot(axes=1, normalize=True, name='sentence_sim')([emb_1, emb_2])
-        #corpus_sim = Dot(axes=1, normalize=True, name='corpus_sim')([emb_corp_1, emb_corp_2])
-
-        #diff = Subtract(name='diff')([sent_sim, corpus_sim])
-        #square_diff_var = Lambda(square_diff, name='output_reg')([diff])
-
-        #define our Model with two output
         model_2 = Model(inputs=main_input, outputs=sentiment_output)
      
         model_2.compile(loss=model_loss_with_reg, optimizer='adam', metrics=['accuracy'])
