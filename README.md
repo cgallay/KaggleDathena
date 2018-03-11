@@ -6,7 +6,7 @@
 
 `DataFrameCreation.ipynb` : Read and exctract freatures from all documents and save it as a pandas dataFrame (in `safe/df_file_final.csv`) 
 
-`Pipline_Vx.x.ipynb`: Main notebook that create our pipline for this project (using the other modules) and that create the submission file
+`Pipline_V0.2.ipynb`: Main notebook that create our pipline for this project (using the other modules) and that create the submission file
 
 `Test.ipynb`: Some unit test for utility functions
 
@@ -19,7 +19,7 @@ The training is done either on [Amazon reviews](https://www.kaggle.com/bittlingm
 ## Python code (module)
 `extract_text.py`: some function to extract text data from **doc(x)**, **pdf** and **xls(x)** files
 
-`name_entity_analyzer.py`: code to detect if a document is about the company (**Keppel** or **Prudential**)
+`sentiment_analyzer.py`: code containing the Convolutional NN made with Keras, including method to train and predict.
 
 `text_preprocessing.py`: code to preprocess the text, like doing some Lemmatisation, vectorization, stop words removal as well as some regex cleaning.
 
@@ -32,7 +32,13 @@ The training is done either on [Amazon reviews](https://www.kaggle.com/bittlingm
 
 
 # Folders
-`safe`: Contains checkpoint for faster exection of the code as pickle or csv for pandas
+`safe`: Contains checkpoint for faster exection of the code as pickle or csv for pandas.
+
+`dataset`: Not filled, contains [Amazon review dataset](https://www.kaggle.com/bittlingmayer/amazonreviews).
+
+`files`: Contains the dataset of this project.
+
+`models`: Contains the model computed thanks to the code.
 
 # Dependencies
 ```
